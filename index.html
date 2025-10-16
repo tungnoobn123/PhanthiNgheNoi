@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Korean Audio Test - Web Version</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            opacity: 0.8;
+            font-size: 16px;
+        }
+
+        .control-panel {
+            padding: 25px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #00b09b, #96c93d);
+            color: white;
+        }
+
+        .btn-stop {
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            color: white;
+        }
+
+        .btn-next {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+        }
+
+        .btn-export {
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color: white;
+        }
+
+        .btn-log {
+            background: linear-gradient(135deg, #fd7e14, #e44d26);
+            color: white;
+        }
+
+        .btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .status-panel {
+            padding: 25px;
+        }
+
+        .status-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+
+        .status-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 5px;
+        }
+
+        .status-value {
+            font-size: 18px;
+            color: #212529;
+        }
+
+        .countdown {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            margin: 20px 25px;
+            border-radius: 10px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .progress-container {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 20px;
+            margin: 20px 25px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #00b09b, #96c93d);
+            width: 0%;
+            transition: width 1s linear;
+        }
+
+        .audio-section {
+            padding: 0 25px 25px;
+        }
+
+        .audio-player {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .log-section {
+            padding: 20px;
+            background: #f8f9fa;
+            margin: 20px;
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+
+        .log-entry {
+            padding: 5px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .log-time {
+            color: #6c757d;
+            font-weight: bold;
+        }
+
+        .log-message {
+            color: #212529;
+        }
+
+        .folder-structure {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            margin: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+            }
+            
+            .control-panel {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎵 Korean Audio Test</h1>
+            <div class="subtitle">Web Version - Chạy hoàn toàn trên trình duyệt</div>
+        </div>
+
+        <div class="control-panel">
+            <button id="btnStart" class="btn btn-start" onclick="audioTest.startTest()">Bắt đầu</button>
+            <button id="btnStop" class="btn btn-stop" onclick="audioTest.stopTest()" disabled>Dừng</button>
+            <button id="btnNext" class="btn btn-next" onclick="audioTest.nextQuestion()" disabled>Next</button>
+            <button id="btnExport" class="btn btn-export" onclick="audioTest.exportPlaylist()">Export Playlist</button>
+            <button id="btnLog" class="btn btn-log" onclick="audioTest.viewLog()">Xem Log</button>
+        </div>
+
+        <div class="status-panel">
+            <div class="status-item">
+                <div class="status-label">Trạng thái:</div>
+                <div id="lblStatus" class="status-value">Chưa bắt đầu</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">File hiện tại:</div>
+                <div id="lblCurrentFile" class="status-value">---</div>
+            </div>
+        </div>
+
+        <div class="countdown" id="lblCountdown">
+            Đếm ngược: 0s
+        </div>
+
+        <div class="progress-container">
+            <div id="progressBar" class="progress-bar"></div>
+        </div>
+
+        <div class="audio-section">
+            <audio id="audioPlayer" class="audio-player" controls>
+                Trình duyệt của bạn không hỗ trợ phát audio.
+            </audio>
+        </div>
+
+        <div class="log-section" id="logContainer">
+            <!-- Log sẽ hiển thị ở đây -->
+        </div>
+
+        <div class="folder-structure">
+            <div>📁 Cấu trúc thư mục mẫu:</div>
+            <div>📁 audio/</div>
+            <div>├── 📁 câu 1/</div>
+            <div>│   └── c1.mp3</div>
+            <div>├── 📁 câu 2/</div>
+            <div>│   ├── 📁 folder1/</div>
+            <div>│   │   ├── c1.mp3</div>
+            <div>│   │   ├── c2.mp3</div>
+            <div>│   │   └── c3.mp3</div>
+            <div>│   └── 📁 folder2/</div>
+            <div>└── ...</div>
+        </div>
+    </div>
+
+    <script src="audio-test.js"></script>
+</body>
+</html>
