@@ -18,21 +18,21 @@ class AudioTest {
         this.audioFolders = {
             "câu 1": ["c1.mp3"],
             "câu 2": [
-              "amnhac", "benhvien", "canhsat", "chaybo", "congvien", 
-                "dattruoc", "diahinh", "dogiadung", "dulich", "giaothong", 
-                "giayto", "hoatdong","khachsan","lienlac","mang","monan","nganhang","ngaynghi",
-                "nghenghiep","nguoinoitieng","nhà","nhahang","noithat","nongdan","phimanh",
-                "shopping","suckhoe","thamhoi","thietbi","thoitiet","thoitrang","tiemtoc","viecnha"
+                "Việc nhà", "Tiệm tóc", "Thời trang", "Thời tiết", "Thiết bị", 
+                "Thăm hỏi", "Sức khỏe", "Shoping", "Phim ảnh", "Nông dân", 
+                "Nhà hàng", "Nhà", "Người nổi tiếng", "Ngày nghỉ lễ", "Ngân hàng", "Món ăn", "Liên lạc", "Khách sạn",
+                "Internet", "Hoạt động vào thời gian rảnh", "Giấy tờ tùy thân", "Giao thông", "Du lịch 1", "Đồ nội thất", "Đồ điện",
+                "Địa hình", "Đi bộ 1", "Đi bộ 2", "Đặt trước", "Công viên", "Công việc", "Cảnh sát", "Bệnh viện", "Âm nhạc"
             ],
             "câu 3": [
-                "benhvien", "congvien", "dodiengiadung", "donoithat", "dulich", 
-                "giaytuythan", "khachsan", "mang", "nganhang", "nha", 
-                "nhahang", "phimanh","shopping","thietbi1","thietbi2","tiemtoc"
+                "Phim ảnh", "Shoping", "Thiết bị 1", "Thiết bị 2", "Tiệm tóc", 
+                "internet", "Khách sạn", "Ngân hàng", "Nhà", "Nhà hàng", 
+                "Giẩy tờ tùy thân", "Du lịch", "Đồ nội thất", "Đồ điện", "công viên", "Bệnh viện"
             ],
             "câu 4": [
-                "amnhac", "benhvien", "chaybo", "congvien", "diahinh", 
-                "dulich", "giaytotuythan", "nguoinoitieng", "nha1", "nha2", 
-                "nhahang", "phimanh"
+                "Âm nhạc", "Bệnh viện", "Công viên", "Đi bộ", "Địa hình", 
+                "du lịch", "Giấy tờ tùy thân", "Người nổi tiếng", "Nhà", "Nhà 2", 
+                "Nhà hàng", "Phim ảnh"
             ]
         };
 
@@ -78,13 +78,31 @@ class AudioTest {
     }
 
     nextQuestion() {
-        this.writeLog(`NGƯỜI DÙNG NHẤN NEXT - Chuyển từ câu ${this.currentQuestion}`);
-        this.skipToNextQuestion();
+        this.writeLog(`NGƯỜI DÙNG NHẤN NEXT - Câu ${this.currentQuestion}.${this.currentSubQuestion}`);
+        
+        // Nếu CHƯA phát hết file trong câu hiện tại → chuyển file tiếp theo trong cùng câu
+        if (this.currentSubQuestion < this.currentQuestionFiles.length) {
+            this.writeLog(`Chuyển sang file tiếp theo trong câu ${this.currentQuestion}`);
+            this.skipToNextSubQuestion();
+        } 
+        // Nếu đã phát đến file CUỐI cùng của câu → chuyển sang câu tiếp theo
+        else {
+            this.writeLog(`Đã phát hết file trong câu ${this.currentQuestion}, chuyển sang câu tiếp theo`);
+            this.skipToNextQuestion();
+        }
+    }
+
+    skipToNextSubQuestion() {
+        this.stopAll();
+        this.writeLog(`BỎ QUA file ${this.currentQuestion}.${this.currentSubQuestion}`);
+        
+        this.currentSubQuestion++;
+        this.playCurrentSubQuestion();
     }
 
     skipToNextQuestion() {
         this.stopAll();
-        this.writeLog(`BỎ QUA câu ${this.currentQuestion}.${this.currentSubQuestion}`);
+        this.writeLog(`BỎ QUA câu ${this.currentQuestion}`);
 
         if (this.currentQuestion >= 15) {
             this.writeLog("=== KẾT THÚC BÀI THI (BẰNG NEXT) ===");
@@ -159,7 +177,7 @@ class AudioTest {
         } else {
             this.writeLog(`LỖI: Không tìm thấy file câu 1`);
             alert(`LỖI: Không tìm thấy file câu 1!`);
-            this.nextQuestion();
+            this.skipToNextQuestion();
         }
     }
 
@@ -183,7 +201,7 @@ class AudioTest {
         if (availableFolders.length === 0) {
             this.writeLog(`LỖI: Đã dùng hết thư mục cho câu ${this.currentQuestion}`);
             alert("Đã dùng hết thư mục cho câu hỏi này!");
-            this.nextQuestion();
+            this.skipToNextQuestion();
             return;
         }
 
@@ -264,7 +282,7 @@ class AudioTest {
 
     async playCurrentSubQuestion() {
         if (this.currentSubQuestion > this.currentQuestionFiles.length) {
-            this.nextQuestion();
+            this.skipToNextQuestion();
             return;
         }
 
@@ -394,15 +412,12 @@ class AudioTest {
     }
 
     playNextSubQuestion() {
-        this.currentSubQuestion++;
-        this.playCurrentSubQuestion();
-    }
-
-    nextQuestion() {
-        this.writeLog(`Kết thúc câu hỏi ${this.currentQuestion}`);
-        this.currentQuestion++;
-        this.currentSubQuestion = 1;
-        this.playQuestion();
+        // Thay vì luôn tăng subQuestion, kiểm tra xem còn file không
+        if (this.currentSubQuestion < this.currentQuestionFiles.length) {
+            this.skipToNextSubQuestion();  // Chuyển file tiếp theo trong câu
+        } else {
+            this.skipToNextQuestion();     // Chuyển sang câu mới
+        }
     }
 
     getAudioPath(questionFolder, folderName, fileName) {
