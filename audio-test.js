@@ -82,36 +82,50 @@ async handleLogin() {
     const message = document.getElementById('loginMessage');
 
     if (!user || !password) {
-        message.textContent = "Vui lòng nhập tài khoản và mật khẩu.";
+        message.textContent = "⚠️ Vui lòng nhập tài khoản và mật khẩu.";
         return;
     }
 
-    message.textContent = "Đang kiểm tra tài khoản...";
+    message.textContent = "🔄 Đang kiểm tra tài khoản...";
 
     try {
-        // Gọi API kiểm tra đăng nhập
-        const response = await fetch(`https://bluewayvn.com/LoginController/Login?user=${encodeURIComponent(user)}&password=${encodeURIComponent(password)}`);
+        // 🔹 Gọi API Google Sheet thông qua opensheet
+        const sheetId = "1yxtqSjrgVBa3dgk3to9ytc9F5J3-nWehXjgQdOgbqrI";
+        const sheetName = "taikhoan"; // thay bằng tên sheet thực tế
+        const url = `https://opensheet.elk.sh/${sheetId}/${sheetName}`;
 
-        if (!response.ok) throw new Error("Không thể kết nối tới server.");
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Không thể kết nối Google Sheet");
 
-        const data = await response.json();
+        const sheetData = await response.json();
 
-        if (Array.isArray(data) && data.length > 0) {
-            // ✅ Đăng nhập thành công
-            message.textContent = "";
-            this.closeLoginModal();
-            this.writeLog(`Người dùng '${user}' đăng nhập thành công.`);
-            
-            // 👉 Chỉ bây giờ mới bắt đầu bài thi
+        // 🔍 Kiểm tra thông tin đăng nhập
+        const found = sheetData.find(row =>
+            row.USERID === user && row.PW === password
+        );
+
+        if (found) {
+            message.textContent = "✅ Đăng nhập thành công!";
+            // Ẩn modal nếu có
+            if (typeof $ !== 'undefined' && $('#loginModal').length) {
+                $('#loginModal').modal('hide');
+                $('#loginModal').hide();
+            }
+               // Xóa backdrop nếu còn sót
+            $('body').removeClass('modal-open');
+            $('.modal-backdrop').remove();
+            // Bắt đầu bài test
             this.startTest();
         } else {
-            message.textContent = "Sai tài khoản hoặc mật khẩu.";
+            message.textContent = "❌ Sai tài khoản hoặc mật khẩu.";
         }
+
     } catch (error) {
-        console.error(error);
-        message.textContent = "Lỗi kết nối server.";
+        console.error("Lỗi:", error);
+        message.textContent = "❌ Không thể tải dữ liệu hoặc lỗi mạng.";
     }
 }
+
 
 
             startTest() {
