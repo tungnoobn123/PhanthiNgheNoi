@@ -44,14 +44,18 @@
             }
 
             initializeEventListeners() {
-                document.getElementById('btnStart').addEventListener('click', () => this.startTest());
-                document.getElementById('btnStop').addEventListener('click', () => this.stopTest());
-                document.getElementById('btnNext').addEventListener('click', () => this.nextQuestion());
-                document.getElementById('btnExportPlaylist').addEventListener('click', () => this.exportPlaylist());
-                document.getElementById('btnViewLog').addEventListener('click', () => this.viewLog());
+                   document.getElementById('btnStart').addEventListener('click', () => this.showLoginModal());
+    document.getElementById('btnStop').addEventListener('click', () => this.stopTest());
+    document.getElementById('btnNext').addEventListener('click', () => this.nextQuestion());
+    document.getElementById('btnExport').addEventListener('click', () => this.exportPlaylist());
+    document.getElementById('btnLog').addEventListener('click', () => this.viewLog());
 
                 const audioPlayer = document.getElementById('audioPlayer');
                 audioPlayer.addEventListener('ended', () => this.handleAudioEnded());
+
+                 // Nút trong modal
+                    document.getElementById('btnLoginConfirm').addEventListener('click', () => this.handleLogin());
+                    document.getElementById('btnLoginCancel').addEventListener('click', () => this.closeLoginModal());
             }
 
             async checkFileExists(url) {
@@ -63,6 +67,52 @@
                     return false;
                 }
             }
+           
+            showLoginModal() {
+    document.getElementById('loginModal').style.display = 'block';
+}
+
+closeLoginModal() {
+    document.getElementById('loginModal').style.display = 'none';
+}
+
+async handleLogin() {
+    const user = document.getElementById('loginUser').value.trim();
+    const password = document.getElementById('loginPassword').value.trim();
+    const message = document.getElementById('loginMessage');
+
+    if (!user || !password) {
+        message.textContent = "Vui lòng nhập tài khoản và mật khẩu.";
+        return;
+    }
+
+    message.textContent = "Đang kiểm tra tài khoản...";
+
+    try {
+        // Gọi API kiểm tra đăng nhập
+        const response = await fetch(`https://bluewayvn.com/LoginController/Login?user=${encodeURIComponent(user)}&password=${encodeURIComponent(password)}`);
+
+        if (!response.ok) throw new Error("Không thể kết nối tới server.");
+
+        const data = await response.json();
+
+        if (Array.isArray(data) && data.length > 0) {
+            // ✅ Đăng nhập thành công
+            message.textContent = "";
+            this.closeLoginModal();
+            this.writeLog(`Người dùng '${user}' đăng nhập thành công.`);
+            
+            // 👉 Chỉ bây giờ mới bắt đầu bài thi
+            this.startTest();
+        } else {
+            message.textContent = "Sai tài khoản hoặc mật khẩu.";
+        }
+    } catch (error) {
+        console.error(error);
+        message.textContent = "Lỗi kết nối server.";
+    }
+}
+
 
             startTest() {
                 this.writeLog("=== BẮT ĐẦU BÀI THI ===");
