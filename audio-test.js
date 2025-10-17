@@ -237,9 +237,8 @@ async loadQuestionFilesByGroup(questionFolder, folderName, questionType) {
     this.playCurrentSubQuestion();
 }
 
-            async playQuestion1() {
-                // Ưu tiên file có thời gian trước
-               const possibleFiles = ["c1(60).mp3", "c1(90).mp3", "c1(120).mp3", "c1.mp3"];
+         async playQuestion1() {
+    const possibleFiles = ["c1(60).mp3", "c1(90).mp3", "c1(120).mp3", "c1.mp3"];
     let foundFile = null;
 
     for (const file of possibleFiles) {
@@ -254,16 +253,26 @@ async loadQuestionFilesByGroup(questionFolder, folderName, questionType) {
 
     if (foundFile) {
         this.currentQuestionFiles = [foundFile];
+        this.currentSubQuestion = 1;
+
+        // Phát file đầu tiên
         await this.playCurrentSubQuestion();
 
-        // ✅ tự động chuyển sang câu 2 sau khi câu 1 xong
-        this.skipToNextQuestion();
+        // ✅ Sau khi phát xong, bắt đầu đếm ngược
+        const waitTime = this.getWaitTimeForQuestion(1); // có thể là 60 / 90 / 120
+        this.writeLog(`Chờ ${waitTime} giây trước khi sang câu tiếp theo...`);
+
+        this.startCountdown(waitTime, () => {
+            // ✅ Sau khi đếm xong, chuyển sang câu 2
+            this.skipToNextQuestion();
+        });
     } else {
         this.writeLog(`LỖI: Không tìm thấy file câu 1`);
         alert(`LỖI: Không tìm thấy file câu 1!`);
         this.skipToNextQuestion();
     }
-            }
+}
+
 
             playQuestion2To10() {
                 this.loadRandomFolder("câu 2", 2);
