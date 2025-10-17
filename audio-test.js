@@ -14,7 +14,8 @@
                 };
                 this.playlist = [];
                 this.logEntries = [];
-                
+                this.displayQuestionIndex = 1; // 🟢 để hiển thị số câu hỏi tổng hợp
+
                 // CẤU TRÚC THƯ MỤC THỰC TẾ CỦA BẠN
                 this.audioFolders = {
                     "câu 1": ["c1.mp3"],
@@ -85,48 +86,57 @@
                 this.updateControls();
             }
 
-            nextQuestion() {
-                this.writeLog(`NGƯỜI DÙNG NHẤN NEXT - Câu ${this.currentQuestion}.${this.currentSubQuestion}`);
-                
-                // Nếu CHƯA phát hết file trong câu hiện tại → chuyển file tiếp theo trong cùng câu
-                if (this.currentSubQuestion < this.currentQuestionFiles.length) {
-                    this.writeLog(`Chuyển sang file tiếp theo trong câu ${this.currentQuestion}`);
-                    this.skipToNextSubQuestion();
-                } 
-                // Nếu đã phát đến file CUỐI cùng của câu → chuyển sang câu tiếp theo
-                else {
-                    this.writeLog(`Đã phát hết file trong câu ${this.currentQuestion}, chuyển sang câu tiếp theo`);
-                    this.skipToNextQuestion();
-                }
-            }
+          nextQuestion() {
+    this.writeLog(`NEXT - Câu ${this.currentQuestion}.${this.currentSubQuestion}`);
+
+    if (this.currentSubQuestion < this.currentQuestionFiles.length) {
+        this.skipToNextSubQuestion(); // chuyển sang file tiếp theo cùng thư mục
+    } else {
+        this.skipToNextQuestion(); // chuyển nhóm mới
+    }
+}
+
 
             skipToNextSubQuestion() {
-                this.stopAll();
+                //this.stopAll();
                 this.writeLog(`BỎ QUA file ${this.currentQuestion}.${this.currentSubQuestion}`);
                 
-                this.currentSubQuestion++;
-                this.playCurrentSubQuestion();
+               this.stopAll();
+    this.currentSubQuestion++;
+    this.displayQuestionIndex++; // 🟢 tăng số câu tổng hợp
+    this.updateStatus();
+    this.playCurrentSubQuestion();
             }
 
-            skipToNextQuestion() {
-                this.stopAll();
-                this.writeLog(`BỎ QUA câu ${this.currentQuestion}`);
+           skipToNextQuestion() {
+  this.stopAll();
 
-                if (this.currentQuestion >= 15) {
-                    this.writeLog("=== KẾT THÚC BÀI THI (BẰNG NEXT) ===");
-                    alert("KẾT THÚC BÀI THI!");
-                    this.isPlaying = false;
-                    this.updateControls();
-                    return;
-                }
+    // Xác định bước nhảy
+    let step = 1;
+    if (this.currentQuestion >= 1 && this.currentQuestion <= 1) step = 1;
+    else if (this.currentQuestion >= 2 && this.currentQuestion <= 10) step = 3;
+    else if (this.currentQuestion >= 11 && this.currentQuestion <= 13) step = 3;
+    else if (this.currentQuestion >= 14 && this.currentQuestion <= 15) step = 2;
 
-                this.currentQuestion++;
-                this.currentSubQuestion = 1;
-                this.currentQuestionFiles = [];
+    this.currentQuestion += step;
+    this.currentSubQuestion = 1;
+    this.currentQuestionFiles = [];
+    this.displayQuestionIndex++; // tăng câu tổng hợp
+    this.updateStatus();
 
-                this.writeLog(`CHUYỂN SANG câu ${this.currentQuestion}`);
-                this.playQuestion();
-            }
+    // Kiểm tra kết thúc
+    if (this.currentQuestion > 15) {
+        this.writeLog("=== KẾT THÚC BÀI THI ===");
+        alert("KẾT THÚC BÀI THI!");
+        this.isPlaying = false;
+        this.updateControls();
+        return;
+    }
+
+    this.writeLog(`CHUYỂN SANG CÂU ${this.currentQuestion}`);
+    this.playQuestion();
+}
+
 
             stopAll() {
                 if (this.countdownTimer) {
@@ -141,52 +151,118 @@
                 audioPlayer.currentTime = 0;
             }
 
-            playQuestion() {
-                this.updateStatus();
-                this.writeLog(`Bắt đầu câu hỏi ${this.currentQuestion}`);
+           playQuestion() {
+    this.updateStatus();
+    this.writeLog(`Bắt đầu câu hỏi ${this.currentQuestion}`);
 
-                if (this.currentQuestion > 15) {
-                    this.writeLog("=== KẾT THÚC BÀI THI ===");
-                    alert("KẾT THÚC BÀI THI!");
-                    this.isPlaying = false;
-                    this.updateControls();
-                    return;
-                }
+    if (this.currentQuestion > 15) {
+        this.writeLog("=== KẾT THÚC BÀI THI ===");
+        alert("KẾT THÚC BÀI THI!");
+        this.isPlaying = false;
+        this.updateControls();
+        return;
+    }
 
-                if (this.currentQuestion === 1) {
-                    this.playQuestion1();
-                } else if (this.currentQuestion >= 2 && this.currentQuestion <= 10) {
-                    this.playQuestion2To10();
-                } else if (this.currentQuestion >= 11 && this.currentQuestion <= 13) {
-                    this.playQuestion11To13();
-                } else if (this.currentQuestion >= 14 && this.currentQuestion <= 15) {
-                    this.playQuestion14To15();
-                }
-            }
+    if (this.currentQuestion === 1) {
+        this.playQuestion1();
+    } else if (this.currentQuestion >= 2 && this.currentQuestion <= 10) {
+        this.playGroupQuestion("câu 2", 2, 3); // 3 thư mục, mỗi thư mục 3 file
+    } else if (this.currentQuestion >= 11 && this.currentQuestion <= 13) {
+        this.playGroupQuestion("câu 3", 3, 1); // 1 thư mục, 3 file
+    } else if (this.currentQuestion >= 14 && this.currentQuestion <= 15) {
+        this.playGroupQuestion("câu 4", 4, 1); // 1 thư mục, 2 file
+    }
+}
+async playGroupQuestion(questionFolder, questionType, numFolders) {
+    // Nếu chưa khởi tạo danh sách thư mục cho nhóm này thì tạo
+    if (!this.groupFolders) this.groupFolders = {};
+    if (!this.groupFolders[questionType]) this.groupFolders[questionType] = [];
+
+    // Nếu chưa random đủ thư mục → random thêm
+    while (this.groupFolders[questionType].length < numFolders) {
+        const available = this.audioFolders[questionFolder].filter(f => 
+            !this.usedFolders[questionType].includes(f)
+        );
+        if (available.length === 0) {
+            this.writeLog(`Không còn thư mục khả dụng cho ${questionFolder}`);
+            break;
+        }
+        const randomFolder = available[Math.floor(Math.random() * available.length)];
+        this.usedFolders[questionType].push(randomFolder);
+        this.groupFolders[questionType].push(randomFolder);
+    }
+
+    // Xác định đang ở thư mục nào
+    const currentFolderIndex = Math.floor(
+        (this.currentQuestion - (questionType === 2 ? 2 : questionType === 3 ? 11 : 14)) / 
+        (questionType === 2 ? 3 : questionType === 3 ? 3 : 2)
+    );
+    const folderName = this.groupFolders[questionType][currentFolderIndex];
+
+    this.writeLog(`Câu ${this.currentQuestion}: chọn thư mục ${folderName}`);
+    await this.loadQuestionFilesByGroup(questionFolder, folderName, questionType);
+}
+async loadQuestionFilesByGroup(questionFolder, folderName, questionType) {
+    this.currentQuestionFiles = [];
+
+    const possibleFiles = {
+        'c1': ["c1(60).mp3", "c1(90).mp3", "c1(120).mp3", "c1.mp3"],
+        'c2': ["c2(60).mp3", "c2(90).mp3", "c2(120).mp3", "c2.mp3"],
+        'c3': ["c3(60).mp3", "c3(90).mp3", "c3(120).mp3", "c3.mp3"],
+        'c4': ["c4(60).mp3", "c4(90).mp3", "c4(120).mp3", "c4.mp3"]
+    };
+
+    const foundFiles = [];
+
+    // 2–10 và 11–13 cần 3 file (c1,c2,c3)
+    // 14–15 cần 2 file (c1,c2)
+    if (questionType === 2 || questionType === 3) {
+        await this.findAndAddFile(questionFolder, folderName, possibleFiles.c1, 'c1', foundFiles);
+        await this.findAndAddFile(questionFolder, folderName, possibleFiles.c2, 'c2', foundFiles);
+        await this.findAndAddFile(questionFolder, folderName, possibleFiles.c3, 'c3', foundFiles);
+    } else if (questionType === 4) {
+        await this.findAndAddFile(questionFolder, folderName, possibleFiles.c1, 'c1', foundFiles);
+        await this.findAndAddFile(questionFolder, folderName, possibleFiles.c2, 'c2', foundFiles);
+    }
+
+    this.currentQuestionFiles = foundFiles.map(f => f.path);
+
+    if (this.currentQuestionFiles.length === 0) {
+        alert(`Không tìm thấy file audio trong ${folderName}`);
+        this.skipToNextQuestion();
+        return;
+    }
+
+    this.currentSubQuestion = 1;
+    this.playCurrentSubQuestion();
+}
 
             async playQuestion1() {
                 // Ưu tiên file có thời gian trước
-                const possibleFiles = ["c1(60).mp3", "c1(90).mp3", "c1(120).mp3", "c1.mp3"];
-                let foundFile = null;
+               const possibleFiles = ["c1(60).mp3", "c1(90).mp3", "c1(120).mp3", "c1.mp3"];
+    let foundFile = null;
 
-                for (const file of possibleFiles) {
-                    const filePath = this.getAudioPath("câu 1", null, file);
-                    const fileExists = await this.checkFileExists(filePath);
-                    if (fileExists) {
-                        foundFile = filePath;
-                        this.writeLog(`Câu 1: Tìm thấy file ${file}`);
-                        break;
-                    }
-                }
+    for (const file of possibleFiles) {
+        const filePath = this.getAudioPath("câu 1", null, file);
+        const fileExists = await this.checkFileExists(filePath);
+        if (fileExists) {
+            foundFile = filePath;
+            this.writeLog(`Câu 1: Tìm thấy file ${file}`);
+            break;
+        }
+    }
 
-                if (foundFile) {
-                    this.currentQuestionFiles = [foundFile];
-                    await this.playCurrentSubQuestion();
-                } else {
-                    this.writeLog(`LỖI: Không tìm thấy file câu 1`);
-                    alert(`LỖI: Không tìm thấy file câu 1!`);
-                    this.skipToNextQuestion();
-                }
+    if (foundFile) {
+        this.currentQuestionFiles = [foundFile];
+        await this.playCurrentSubQuestion();
+
+        // ✅ tự động chuyển sang câu 2 sau khi câu 1 xong
+        this.skipToNextQuestion();
+    } else {
+        this.writeLog(`LỖI: Không tìm thấy file câu 1`);
+        alert(`LỖI: Không tìm thấy file câu 1!`);
+        this.skipToNextQuestion();
+    }
             }
 
             playQuestion2To10() {
@@ -328,6 +404,8 @@
                 this.writeLog(`Câu ${this.currentQuestion}.${this.currentSubQuestion}: Phát file ${fileName} lần 2`);
                 await this.playAudioFile(filePath);
 
+                this.updateStatus(); // 🟢 cập nhật hiển thị khi đổi file
+this.updateStatus(); // 🟢 gọi lại để cập nhật tên mỗi lần phát file
                 // Lấy thời gian chờ TỰ ĐỘNG từ tên file
                 const waitTime = this.extractWaitTimeFromFileName(fileName);
                 this.writeLog(`Câu ${this.currentQuestion}.${this.currentSubQuestion}: Bắt đầu đếm ngược ${waitTime} giây (từ tên file)`);
@@ -482,10 +560,21 @@
                 }
             }
 
-            updateStatus() {
-                document.getElementById('lblStatus').textContent = 
-                    `Câu hỏi: ${this.currentQuestion}/15 - File: ${this.currentSubQuestion}/${this.currentQuestionFiles.length}`;
-            }
+          updateStatus() {
+  const lblStatus = document.getElementById('lblStatus');
+    const lblCurrentFile = document.getElementById('lblCurrentFile');
+
+    const totalQuestions = this.totalQuestions || 15; // tổng số câu trong bài
+    const totalFiles = this.currentQuestionFiles ? this.currentQuestionFiles.length : 0;
+    const currentFileName = this.currentQuestionFiles && this.currentQuestionFiles.length >= this.currentSubQuestion
+        ? this.getFileNameFromPath(this.currentQuestionFiles[this.currentSubQuestion - 1])
+        : "---";
+
+    // 🟢 Hiển thị số câu hỏi tổng hợp (displayQuestionIndex)
+    lblStatus.textContent = `Câu hỏi: ${this.displayQuestionIndex}/${totalQuestions} - File: ${this.currentSubQuestion}/${totalFiles}`;
+    lblCurrentFile.textContent = currentFileName;
+}
+
 
             updateControls() {
                 document.getElementById('btnStart').disabled = this.isPlaying;
