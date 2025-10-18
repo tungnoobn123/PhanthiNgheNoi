@@ -22,7 +22,7 @@
                     "câu 2": [
                         "Việc nhà", "Tiệm tóc", "Thời trang", "Thời tiết", "Thiết bị", 
                         "Thăm hỏi", "Sức khỏe", "Shoping", "Phim ảnh", "Nông dân", 
-                        "Nhà hàng", "Nhà", "Người nổi tiếng", "Ngày nghỉ lễ", "Ngân hàng", "Món ăn", "Liên lạc", "Khách sạn",
+                        "Nhà hàng", "nhà", "Người nổi tiếng", "Ngày nghỉ lễ", "Ngân hàng", "Món ăn", "Liên lạc", "Khách sạn",
                         "Internet", "Hoạt động vào thời gian rảnh", "Giấy tờ tùy thân", "Giao thông", "Du lịch 1", "Đồ nội thất", "Đồ điện",
                         "Địa hình", "Đi bộ 1", "Đi bộ 2", "Đặt trước", "Công viên", "Công việc", "Cảnh sát", "Bệnh viện", "Âm nhạc"
                     ],
