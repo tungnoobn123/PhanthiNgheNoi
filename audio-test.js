@@ -24,7 +24,7 @@
                         "Thăm hỏi", "Sức khỏe", "Shoping", "Phim ảnh", "Nông dân", 
                         "Nhà hàng", "nhà", "Người nổi tiếng", "Ngày nghỉ lễ", "Ngân hàng", "Món ăn", "Liên lạc", "Khách sạn",
                         "Internet", "Hoạt động vào thời gian rảnh", "Giấy tờ tùy thân", "Giao thông", "Du lịch 1", "Đồ nội thất", "Đồ điện",
-                        "Địa hình", "Đi bộ 1", "Đi bộ 2", "Đặt trước", "Công viên", "Công việc", "Cảnh sát", "Bệnh viện", "Âm nhạc"
+                        "Địa hình", "Đi bộ 1", "Đi bộ 2", "Đặt trước", "Công viên", "Công việc", "Cảnh sát", "Bệnh viện", "Âm nhạc", "Môi trường"
                     ],
                     "câu 3": [
                         "Phim ảnh", "Shoping", "Thiết bị 1", "Thiết bị 2", "Tiệm tóc", 
@@ -216,56 +216,119 @@ async handleLogin() {
             }
 
            playQuestion() {
-    this.updateStatus();
-    this.writeLog(`Bắt đầu câu hỏi ${this.currentQuestion}`);
+   this.updateStatus();
+        this.writeLog(`Bắt đầu câu hỏi ${this.currentQuestion}`);
 
-    if (this.currentQuestion > 15) {
-        this.writeLog("=== KẾT THÚC BÀI THI ===");
-        alert("KẾT THÚC BÀI THI!");
-        this.isPlaying = false;
-        this.updateControls();
-        return;
-    }
+        if (this.currentQuestion > 15) {
+            this.writeLog("=== KẾT THÚC BÀI THI ===");
+            alert("KẾT THÚC BÀI THI!");
+            this.isPlaying = false;
+            this.updateControls();
+            return;
+        }
 
-    if (this.currentQuestion === 1) {
-        this.playQuestion1();
-    } else if (this.currentQuestion >= 2 && this.currentQuestion <= 10) {
-        this.playGroupQuestion("câu 2", 2, 3); // 3 thư mục, mỗi thư mục 3 file
-    } else if (this.currentQuestion >= 11 && this.currentQuestion <= 13) {
-        this.playGroupQuestion("câu 3", 3, 1); // 1 thư mục, 3 file
-    } else if (this.currentQuestion >= 14 && this.currentQuestion <= 15) {
-        this.playGroupQuestion("câu 4", 4, 1); // 1 thư mục, 2 file
-    }
+        if (this.currentQuestion === 1) {
+            this.playQuestion1();
+        } else if (this.currentQuestion >= 2 && this.currentQuestion <= 10) {
+            this.playGroupQuestion("câu 2", 2, 3); // 3 thư mục, mỗi thư mục 3 file
+        } else if (this.currentQuestion >= 11 && this.currentQuestion <= 13) {
+            this.playGroupQuestion("câu 3", 3, 1); // 1 thư mục, 3 file
+        } else if (this.currentQuestion >= 14 && this.currentQuestion <= 15) {
+            this.playGroupQuestion("câu 4", 4, 1); // 1 thư mục, 2 file
+        }
 }
 async playGroupQuestion(questionFolder, questionType, numFolders) {
-    // Nếu chưa khởi tạo danh sách thư mục cho nhóm này thì tạo
-    if (!this.groupFolders) this.groupFolders = {};
-    if (!this.groupFolders[questionType]) this.groupFolders[questionType] = [];
+     // Nếu chưa khởi tạo danh sách thư mục cho nhóm này thì tạo
+        if (!this.groupFolders) this.groupFolders = {};
+        if (!this.groupFolders[questionType]) this.groupFolders[questionType] = [];
 
-    // Nếu chưa random đủ thư mục → random thêm
-    while (this.groupFolders[questionType].length < numFolders) {
-        const available = this.audioFolders[questionFolder].filter(f => 
-            !this.usedFolders[questionType].includes(f)
-        );
-        if (available.length === 0) {
-            this.writeLog(`Không còn thư mục khả dụng cho ${questionFolder}`);
-            break;
+        // Nếu chưa random đủ thư mục → random thêm
+        while (this.groupFolders[questionType].length < numFolders) {
+            const available = this.audioFolders[questionFolder].filter(f => 
+                !this.usedFolders[questionType].includes(f)
+            );
+            if (available.length === 0) {
+                this.writeLog(`Không còn thư mục khả dụng cho ${questionFolder}`);
+                break;
+            }
+            const randomFolder = available[Math.floor(Math.random() * available.length)];
+            this.usedFolders[questionType].push(randomFolder);
+            this.groupFolders[questionType].push(randomFolder);
         }
-        const randomFolder = available[Math.floor(Math.random() * available.length)];
-        this.usedFolders[questionType].push(randomFolder);
-        this.groupFolders[questionType].push(randomFolder);
+
+        // Xác định đang ở thư mục nào
+        const currentFolderIndex = Math.floor(
+            (this.currentQuestion - (questionType === 2 ? 2 : questionType === 3 ? 11 : 14)) / 
+            (questionType === 2 ? 3 : questionType === 3 ? 3 : 2)
+        );
+        const folderName = this.groupFolders[questionType][currentFolderIndex];
+
+        this.writeLog(`Câu ${this.currentQuestion}: chọn thư mục ${folderName}`);
+        await this.loadQuestionFilesWithRandomLogic(questionFolder, folderName, questionType);
+}
+async loadQuestionFilesWithRandomLogic(questionFolder, folderName, questionType) {
+        this.currentQuestionFiles = [];
+
+        const possibleFiles = {
+            'c1': ["c1(60).mp3", "c1(90).mp3", "c1(120).mp3", "c1.mp3"],
+            'c2': ["c2(60).mp3", "c2(90).mp3", "c2(120).mp3", "c2.mp3"],
+            'c3': ["c3(60).mp3", "c3(90).mp3", "c3(120).mp3", "c3.mp3"],
+            'c4': ["c4(60).mp3", "c4(90).mp3", "c4(120).mp3", "c4.mp3"]
+        };
+
+        const foundFiles = [];
+
+        // LUÔN CHỌN FILE C1 ĐẦU TIÊN
+        await this.findAndAddFile(questionFolder, folderName, possibleFiles.c1, 'c1', foundFiles);
+
+        // RANDOM CÁC FILE CÒN LẠI
+        if (questionType === 2 || questionType === 3) {
+            // Câu 2-10 và 11-13: cần 3 file total (đã có c1, cần thêm 2 file)
+            const remainingFiles = [];
+            
+            // Tìm tất cả file c2, c3, c4 có sẵn
+            const c2Found = await this.findFile(questionFolder, folderName, possibleFiles.c2);
+            const c3Found = await this.findFile(questionFolder, folderName, possibleFiles.c3);
+            const c4Found = await this.findFile(questionFolder, folderName, possibleFiles.c4);
+            
+            if (c2Found) remainingFiles.push({ name: 'c2', ...c2Found });
+            if (c3Found) remainingFiles.push({ name: 'c3', ...c3Found });
+            if (c4Found) remainingFiles.push({ name: 'c4', ...c4Found });
+
+            // Random chọn 2 file từ các file còn lại
+            this.shuffleArray(remainingFiles);
+            const selectedFiles = remainingFiles.slice(0, 2);
+            
+            // Thêm vào danh sách phát
+            selectedFiles.forEach(file => {
+                foundFiles.push(file);
+                this.writeLog(`RANDOM CHỌN: ${file.fileName}`);
+            });
+
+        } else if (questionType === 4) {
+            // Câu 14-15: chỉ cần thêm c2
+            await this.findAndAddFile(questionFolder, folderName, possibleFiles.c2, 'c2', foundFiles);
+        }
+
+        this.currentQuestionFiles = foundFiles.map(f => f.path);
+
+        if (this.currentQuestionFiles.length === 0) {
+            alert(`Không tìm thấy file audio trong ${folderName}`);
+            this.skipToNextQuestion();
+            return;
+        }
+
+        this.currentSubQuestion = 1;
+        this.playCurrentSubQuestion();
+    }
+     shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
     }
 
-    // Xác định đang ở thư mục nào
-    const currentFolderIndex = Math.floor(
-        (this.currentQuestion - (questionType === 2 ? 2 : questionType === 3 ? 11 : 14)) / 
-        (questionType === 2 ? 3 : questionType === 3 ? 3 : 2)
-    );
-    const folderName = this.groupFolders[questionType][currentFolderIndex];
-
-    this.writeLog(`Câu ${this.currentQuestion}: chọn thư mục ${folderName}`);
-    await this.loadQuestionFilesByGroup(questionFolder, folderName, questionType);
-}
 async loadQuestionFilesByGroup(questionFolder, folderName, questionType) {
     this.currentQuestionFiles = [];
 
