@@ -238,33 +238,37 @@ async handleLogin() {
         }
 }
 async playGroupQuestion(questionFolder, questionType, numFolders) {
-     // Nếu chưa khởi tạo danh sách thư mục cho nhóm này thì tạo
-        if (!this.groupFolders) this.groupFolders = {};
-        if (!this.groupFolders[questionType]) this.groupFolders[questionType] = [];
+      if (!this.groupFolders) this.groupFolders = {};
+    if (!this.groupFolders[questionType]) this.groupFolders[questionType] = [];
 
-        // Nếu chưa random đủ thư mục → random thêm
-        while (this.groupFolders[questionType].length < numFolders) {
-            const available = this.audioFolders[questionFolder].filter(f => 
-                !this.usedFolders[questionType].includes(f)
-            );
-            if (available.length === 0) {
-                this.writeLog(`Không còn thư mục khả dụng cho ${questionFolder}`);
-                break;
-            }
-            const randomFolder = available[Math.floor(Math.random() * available.length)];
-            this.usedFolders[questionType].push(randomFolder);
-            this.groupFolders[questionType].push(randomFolder);
-        }
-
-        // Xác định đang ở thư mục nào
-        const currentFolderIndex = Math.floor(
-            (this.currentQuestion - (questionType === 2 ? 2 : questionType === 3 ? 11 : 14)) / 
-            (questionType === 2 ? 3 : questionType === 3 ? 3 : 2)
+    while (this.groupFolders[questionType].length < numFolders) {
+        const available = this.audioFolders[questionFolder].filter(f => 
+            !this.usedFolders[questionType].includes(f)
         );
-        const folderName = this.groupFolders[questionType][currentFolderIndex];
+        if (available.length === 0) {
+            this.writeLog(`Không còn thư mục khả dụng cho ${questionFolder}`);
+            break;
+        }
+        const randomFolder = available[Math.floor(Math.random() * available.length)];
+        this.usedFolders[questionType].push(randomFolder);
+        this.groupFolders[questionType].push(randomFolder);
+    }
 
-        this.writeLog(`Câu ${this.currentQuestion}: chọn thư mục ${folderName}`);
+    const currentFolderIndex = Math.floor(
+        (this.currentQuestion - (questionType === 2 ? 2 : questionType === 3 ? 11 : 14)) / 
+        (questionType === 2 ? 3 : questionType === 3 ? 3 : 2)
+    );
+    const folderName = this.groupFolders[questionType][currentFolderIndex];
+
+    this.writeLog(`Câu ${this.currentQuestion}: chọn thư mục ${folderName}`);
+
+    // 🟢 SỬA Ở ĐÂY:
+    // Câu 11–13 (questionType === 3) thì phát tuần tự c1 → c2 → c3
+    if (questionType === 3) {
+        await this.loadQuestionFilesByGroup(questionFolder, folderName, questionType);
+    } else {
         await this.loadQuestionFilesWithRandomLogic(questionFolder, folderName, questionType);
+    }
 }
 async loadQuestionFilesWithRandomLogic(questionFolder, folderName, questionType) {
         this.currentQuestionFiles = [];
