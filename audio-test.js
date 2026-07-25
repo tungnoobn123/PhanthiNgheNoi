@@ -20,11 +20,11 @@
                 this.audioFolders = {
                     "câu 1": ["c1.mp3"],
                     "câu 2": [
-                        "Việc nhà", "Tiệm tóc", "Thời trang", "Thời tiết", "Thiết bị", 
-                        "Thăm hỏi", "Sức khỏe", "Shoping", "Phim ảnh", "Nông dân", 
-                        "Nhà hàng", "nhà", "Người nổi tiếng", "Ngày nghỉ lễ", "Ngân hàng", "Món ăn", "Liên lạc", "Khách sạn",
-                        "Internet", "Hoạt động vào thời gian rảnh", "Giấy tờ tùy thân", "Giao thông", "Du lịch 1", "Đồ nội thất", "Đồ điện",
-                        "Địa hình", "Đi bộ 1", "Đi bộ 2", "Đặt trước", "Công viên", "Công việc", "Cảnh sát", "Bệnh viện", "Âm nhạc", "Môi trường"
+                        "Âm nhạc", "Bệnh viện", "TChạy bộ", "Công viên", "Địa hình", 
+                        "Đồ điện gia dụng", "Đồ nội thất", "Du lịch", "Giao thông", "Internet 1", 
+                        "Internet 2", "Khách sạn", "Liên lạc", "Môi trường", "Ngân hàng", "Người nổi tiếng", "Nhà 1", "Nhà 2",
+                        "Nhà hàng", "Nhà hàng 1", "Sức khỏe", "Giao thông", "Thiết bị", "Thời tiết", "Tiệm tóc",
+                        "Việc nhà", "Xem phim"
                     ],
                     "câu 3": [
                         "Phim ảnh", "Shoping", "Thiết bị 1", "Thiết bị 2", "Tiệm tóc", 
@@ -32,9 +32,9 @@
                         "Giẩy tờ tùy thân", "Du lịch", "Đồ nội thất", "Đồ điện", "công viên", "Bệnh viện"
                     ],
                     "câu 4": [
-                        "Âm nhạc", "Bệnh viện", "Công viên", "Đi bộ", "Địa hình", 
-                        "du lịch", "Giấy tờ tùy thân", "Người nổi tiếng", "Nhà", "Nhà 2", 
-                        "Nhà hàng", "Phim ảnh"
+                        "Âm nhạc", "Bệnh viện", "chạy bộ", "Công viên", "Công viên 1", 
+                        "Du lích", "Giao thông", "Internet", "Liên lạc", "Môi trường", 
+                        "Mua sắm", "Nhà 1","Nhà 2","Nhà 3","Nhà 4","Nhà hàng","Phim","Thiết bị","Tiệm tóc"
                     ]
                 };
 
