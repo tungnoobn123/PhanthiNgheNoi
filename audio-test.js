@@ -273,10 +273,10 @@ async loadQuestionFilesWithRandomLogic(questionFolder, folderName, questionType)
         this.currentQuestionFiles = [];
 
         const possibleFiles = {
-            'c1': ["c1(60).mp3", "c1(90).mp3", "c1(120).mp3", "c1.mp3"],
-            'c2': ["c2(60).mp3", "c2(90).mp3", "c2(120).mp3", "c2.mp3"],
-            'c3': ["c3(60).mp3", "c3(90).mp3", "c3(120).mp3", "c3.mp3"],
-            'c4': ["c4(60).mp3", "c4(90).mp3", "c4(120).mp3", "c4.mp3"]
+            'c1': ["C1(60).mp3", "C1(90).mp3", "C1(120).mp3", "C1.mp3"],
+            'c2': ["C2(60).mp3", "C2(90).mp3", "C2(120).mp3", "C2.mp3"],
+            'c3': ["C3(60).mp3", "C3(90).mp3", "C3(120).mp3", "C3.mp3"],
+            'c4': ["C4(60).mp3", "C4(90).mp3", "C4(120).mp3", "C4.mp3"]
         };
 
         const foundFiles = [];
