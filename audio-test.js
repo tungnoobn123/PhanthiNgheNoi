@@ -514,17 +514,34 @@ async loadQuestionFilesByGroup(questionFolder, folderName, questionType) {
             }
 
             // Hàm mới: tìm file đầu tiên tồn tại trong danh sách
-            async findFile(questionFolder, folderName, fileList) {
-                for (const fileName of fileList) {
-                    const filePath = this.getAudioPath(questionFolder, folderName, fileName);
-                    const fileExists = await this.checkFileExists(filePath);
-                    if (fileExists) {
-                        return { path: filePath, fileName: fileName };
-                    }
-                }
-                return null;
-            }
+           async findFile(questionFolder, folderName, fileList) {
+    for (const fileName of fileList) {
+        const filePath = this.getAudioPath(
+            questionFolder,
+            folderName,
+            fileName
+        );
 
+        console.log("[DEBUG FILE]", {
+            questionFolder,
+            folderName,
+            fileName,
+            filePath,
+            fullURL: new URL(filePath, document.baseURI).href
+        });
+
+        const fileExists = await this.checkFileExists(filePath);
+
+        if (fileExists) {
+            return {
+                path: filePath,
+                fileName: fileName
+            };
+        }
+    }
+
+    return null;
+}
             async playCurrentSubQuestion() {
                 if (this.currentSubQuestion > this.currentQuestionFiles.length) {
                     this.skipToNextQuestion();
