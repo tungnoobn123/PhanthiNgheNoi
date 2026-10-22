@@ -667,17 +667,16 @@ this.updateStatus(); // 🟢 gọi lại để cập nhật tên mỗi lần ph�
                 }
             }
 
-            getAudioPath(questionFolder, folderName, fileName) {
-                let path;
-                
-                if (folderName && fileName) {
-                    path = `audio/${questionFolder}/${folderName}/${fileName}`;
-                } else if (fileName) {
-                    path = `audio/${questionFolder}/${fileName}`;
-                }
-                
-                return path;
-            }
+          getAudioPath(questionFolder, folderName, fileName) {
+    const folder = encodeURIComponent(questionFolder);
+    const file = encodeURIComponent(fileName);
+
+    if (folderName) {
+        return `audio/${folder}/${encodeURIComponent(folderName)}/${file}`;
+    }
+
+    return `audio/${folder}/${file}`;
+}
 
             getFileNameFromPath(path) {
                 return path.split('/').pop() || path;
