@@ -368,7 +368,7 @@ async loadQuestionFilesByGroup(questionFolder, folderName, questionType) {
 }
 
          async playQuestion1() {
-    const possibleFiles = ["c1(60).mp3", "c1(90).mp3", "c1(120).mp3", "c1.mp3"];
+    const possibleFiles = ["C1(60).mp3", "C1(90).mp3", "C1(120).mp3", "C1.mp3"];
     let foundFile = null;
 
     for (const file of possibleFiles) {
